@@ -40,13 +40,29 @@ The attribute is for preview builds only. Build production without the
 adapter and fail the build if `data-magpie-src` appears in it — see the
 assertion step in `.github/workflows/build.yml`.
 
+## Arming and triggers
+
+A pull request is armed by the `preview` label, added by someone with write
+access — directly, by commenting `/show-preview` (the publisher adds the label
+and reacts 🚀), or by dispatching the workflow for that PR. Removing the label
+retires the preview.
+
+`preview-publish.yml` has no schedule. `pull_request_target` and
+`issue_comment` are used as signals only: both jobs check out the default
+branch, and only the PR number reaches a step. `await-build.mjs` waits for the
+unprivileged build of the PR's head commit, then `publish.mjs` reconciles every
+open PR and preview branch. Every publish posts a new comment on the PR with
+the commit and URL, besides updating the sticky status comment, because an edit
+notifies nobody.
+
 ## Settings for another site
 
-Both default to this site's values.
+All default to this site's values.
 
 | Variable | Default | Meaning |
 |---|---|---|
 | `PREVIEW_SITE_NAME` | `magpie` | First label of the staging hostname. ASF staging derives it from the repository, so it must match what infra serves. |
 | `PREVIEW_BUILD_WORKFLOW` | `build.yml` | File name of the workflow whose runs carry the `preview-site` artifact |
+| `PREVIEW_LABEL` | `preview` | The arming label. The workflow's `if:` expressions name it literally too — change both. |
 
 Set them in the `env:` of the publish step in `preview-publish.yml`.
