@@ -1,8 +1,66 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ImmersiveGradientHero from "../components/landing/ImmersiveGradientHero";
+import { SiteHeader } from "../components/landing/SiteHeader";
+import { SiteFooter } from "../components/landing/SiteFooter";
+import AirflowJourney from "../components/stories/AirflowJourney.astro";
+import { SoftwareLifecycle } from "../components/landing/ProjectExamples";
+import WorkflowExplorer from "../components/landing/WorkflowExplorer";
+import { ArrowRight } from "lucide-react";
+import HeroWorkflows from "../components/landing/HeroWorkflows";
+import BrandName from "../components/landing/BrandName";
+import SectionHeading from "../components/landing/SectionHeading";
+import MoreWays from "../components/landing/MoreWays.astro";
+import { siteEditUrl } from "../lib/site";
 ---
-
-<BaseLayout editUrl="https://github.com/apache/magpie-site/edit/main/src/components/landing/ImmersiveGradientHero.tsx">
-  <ImmersiveGradientHero client:load />
+<BaseLayout editUrl={siteEditUrl("src/pages/index.astro")} title="Apache Magpie | Software maintenance, automated" description="Ready-to-use agent workflows for code reviews, bug fixes, security, releases, repository upkeep, and contributor onboarding.">
+  <SiteHeader homepage />
+  <main id="main-content" tabindex="-1" class="redesign-home">
+    <section id="overview" class="hero hero-overview container sequence-container" aria-labelledby="hero-title">
+      <div id="workflow-examples" class="hero-workflows">
+      <div class="integration-art" aria-label="Magpie connects your agent to ready-made software maintenance workflows">
+        <div class="agent-shell">
+          <HeroWorkflows client:load />
+          <div class="adapter-strip">
+          <p class="diagram-context">Works in</p>
+          <div class="supported-agents" aria-label="Supported agent tools">
+            <a href="/start" target="_blank" rel="noreferrer"><img src="/vendor-logos/claude.png" width="30" height="30" alt="" /><span>Claude Code</span></a><a href="/docs/adapters/codex" target="_blank" rel="noreferrer"><img src="/vendor-logos/openai.png" width="30" height="30" alt="" /><span>Codex</span></a><a href="/docs/adapters/cursor" target="_blank" rel="noreferrer"><img src="/vendor-logos/cursor.svg" width="30" height="30" alt="" /><span>Cursor</span></a>
+            <a href="/docs/adapters/copilot" target="_blank" rel="noreferrer"><img src="/vendor-logos/copilot.svg" width="30" height="30" alt="" /><span>GitHub Copilot</span></a><a href="/docs/adapters/gemini" target="_blank" rel="noreferrer"><img src="/vendor-logos/gemini.ico" width="30" height="30" alt="" /><span>Gemini CLI</span></a><a href="/docs/adapters/opencode" target="_blank" rel="noreferrer"><img src="/vendor-logos/opencode.png" width="30" height="30" alt="" /><span>OpenCode</span></a>
+          </div>
+          <a class="more-adapters" href="/docs/adapters/readme" target="_blank" rel="noreferrer">and more</a>
+          </div>
+        </div>
+      </div>
+      </div>
+    </section>
+    <section id="airflow" class="airflow-section" aria-labelledby="case-studies-title">
+      <div class="container sequence-container">
+      <SectionHeading className="case-heading" id="case-studies-title" target="airflow">Who’s using Magpie</SectionHeading>
+      <article class="case-layout" aria-labelledby="airflow-story-title">
+        <header class="case-intro">
+          <img class="airflow-brand" src="/vendor-logos/airflow.svg" alt="Apache Airflow" width="155" height="60" loading="lazy" />
+          <p id="airflow-story-title">Airflow maintainers use Magpie to investigate security reports and prepare fixes.</p>
+        </header>
+        <div class="case-evidence"><AirflowJourney /></div>
+        <div class="case-quote">
+          <blockquote>“Using <BrandName /> helped us to do things that matter”</blockquote>
+          <div class="case-attribution">
+            <div class="quote-person"><img src="/community-avatars/potiuk.png" width="52" height="52" alt="" loading="lazy" /><div><strong>Jarek Potiuk</strong><span>Apache Airflow® PMC member</span></div></div>
+          </div>
+        </div>
+        <div class="case-walkthrough"><WorkflowExplorer client:load /></div>
+      </article>
+    </div></section>
+    <section id="how-it-works" class="choose-work" aria-labelledby="choose-work-title">
+      <div class="container sequence-container">
+        <SoftwareLifecycle client:load />
+      </div>
+    </section>
+    <MoreWays />
+    <section id="get-started" class="section-band band-blue"><div class="docs-invitation container" data-reveal><img class="invitation-bird" src="/illustrations/magpie/magpie-looking-back.png" width="220" height="220" alt="" loading="lazy" /><div><SectionHeading id="get-started-title" target="get-started">Try Magpie on your project</SectionHeading></div><a class="button" href="/start" target="_blank" rel="noreferrer"><span>Get started</span><ArrowRight className="cta-arrow" aria-hidden="true" /></a></div></section>
+  </main>
+  <SiteFooter />
+  <script>
+    import { setupHomeNavigation } from "../lib/home-navigation";
+    setupHomeNavigation();
+  </script>
 </BaseLayout>

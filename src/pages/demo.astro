@@ -1,0 +1,12 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import TerminalDemo from "../components/landing/TerminalDemo";
+import { SiteHeader } from "../components/landing/SiteHeader";
+import { SiteFooter } from "../components/landing/SiteFooter";
+import { siteEditUrl } from "../lib/site";
+---
+<BaseLayout editUrl={siteEditUrl("src/pages/demo.astro")} title="Interactive demo | Apache Magpie" description="Explore a simulated Magpie maintainer session. Triage pull requests, inspect findings, and decide what happens next.">
+  <SiteHeader />
+  <TerminalDemo client:load />
+  <SiteFooter />
+</BaseLayout>

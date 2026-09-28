@@ -1,0 +1,60 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+---
+# The browser suites, called from build.yml. A separate workflow only so the
+# matrix is grouped under the caller's "browser" job in the checks list.
+name: "Browser tests"
+"on":
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  # Full route coverage (test:browser) in 20 shards, plus the dev-preview suite
+  # (test:dev) in 2 more ("dev 1/2", "dev 2/2"). ubuntu-slim has one CPU and
+  # stops a job at 15 minutes, so each shard runs one worker. Keep each shard's
+  # tests under 8 minutes; add shards as the suite grows.
+  browser:
+    runs-on: ubuntu-slim
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: ["1/20", "2/20", "3/20", "4/20", "5/20", "6/20", "7/20", "8/20", "9/20", "10/20", "11/20", "12/20", "13/20", "14/20", "15/20", "16/20", "17/20", "18/20", "19/20", "20/20", "dev 1/2", "dev 2/2"]
+    name: ${{ startsWith(matrix.suite, 'dev') && matrix.suite || format('shard {0}', matrix.suite) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run sync-docs
+      - name: Run the suite
+        env:
+          SUITE: ${{ matrix.suite }}
+        run: |
+          case "${SUITE}" in
+            # One spec file imports the others, so shard by test, not by file.
+            "dev "*) npm run test:dev -- --shard="${SUITE#dev }" --fully-parallel ;;
+            *) npm run test:browser -- --shard="${SUITE}" --workers=1 ;;
+          esac

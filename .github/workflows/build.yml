@@ -25,6 +25,10 @@ jobs:
   lint:
     runs-on: ubuntu-slim
     timeout-minutes: 10
+    env:
+      # Oxc raw transfer reserves a 6 GiB buffer and fails on this small runner.
+      # Use the normal parser with the same checks: https://knip.dev/reference/known-issues#raw-transfer-memory-errors
+      KNIP_DISABLE_RAW_TRANSFER: "1"
     permissions:
       contents: read
     steps:
@@ -35,11 +39,6 @@ jobs:
 
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
-
-      - name: Run prek (zizmor + security/hygiene hooks)
-        run: |
-          uv tool install prek
-          prek run --all-files --color always
 
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -55,8 +54,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run unit tests
-        run: npm test
+      - name: Sync docs for the static gate
+        run: npm run sync-docs
+
+      - name: Run prek (zizmor + security/hygiene hooks)
+        run: |
+          uv tool install prek
+          prek run --all-files --color always
 
   # The Jekyll source-annotation plugin for PR previews. This site is Astro, so
   # nothing else here builds Jekyll; the test builds a fixture site with the
@@ -99,8 +103,17 @@ jobs:
       - name: Test the Jekyll adapter
         run: bundle exec ruby scripts/preview/adapters/jekyll/test/magpie_src_test.rb
 
+  # The browser suites, as their own workflow so their 17 matrix jobs are
+  # grouped under one "browser" entry in the checks list. They start at once
+  # rather than after lint: they are the longest part of the run, and `build`
+  # still waits for both.
+  browser:
+    permissions:
+      contents: read
+    uses: $/.github/workflows/browser-tests.yml
+
   build:
-    needs: lint
+    needs: [lint, browser]
     runs-on: ubuntu-slim
     timeout-minutes: 10
     permissions:
